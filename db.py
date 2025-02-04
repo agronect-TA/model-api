@@ -4,15 +4,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DB_USER = os.getenv('DB_USER')
-DB_PASSWORD = os.getenv('DB_PASSWORD')
-DB_NAME = os.getenv('DB_NAME')
-DB_CONNECTION_NAME = os.getenv('DB_CONNECTION_NAME')
+# Configure database connection
+DB_USER = "root"
+DB_PASSWORD = "baguskeren77"
+DB_NAME = "agronect_skripsi"
+DB_HOST = "localhost"  # Default to 'localhost' if not set
+DB_PORT =3306  # Default MySQL port is 3306
 
 def get_db_connection():
     return pymysql.connect(
         user=DB_USER,
         password=DB_PASSWORD,
         database=DB_NAME,
-        unix_socket=f'/cloudsql/{DB_CONNECTION_NAME}'
+        host=DB_HOST,
+        port=DB_PORT
     )

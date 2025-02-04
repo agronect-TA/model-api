@@ -1,8 +1,11 @@
 from flask import Flask
-from routes import register_blueprints
+from routes.model_routes import predict_blueprint
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 app = Flask(__name__)
-register_blueprints(app)
+app.register_blueprint(predict_blueprint)
 
 @app.route('/db_test')
 def db_test():
