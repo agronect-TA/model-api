@@ -9,7 +9,7 @@ app.register_blueprint(predict_blueprint)
 
 @app.route('/db_test')
 def db_test():
-    from db import get_db_connection
+    from db.database import get_db_connection
     connection = get_db_connection()
     with connection.cursor() as cursor:
         cursor.execute('SELECT NOW()')

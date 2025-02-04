@@ -1,27 +1,50 @@
 import numpy as np
 from PIL import Image
-from tensorflow import keras
-from information.model_info import corn_info
-from keras.api.models import load_model
+from models import models
+from information.model_info import plant_info
 
-corn_model_path = 'model/corn_model.h5'
-corn_model = load_model(corn_model_path)
-corn_labels = ['Corn Healthy', 'Corn Gray Leaf Spot', 'Corn Common Rust', 'Corn Northern Leaf Blight']
+def predict_image(img, plant_name):
+    """
+    Fungsi untuk melakukan prediksi penyakit tanaman secara fleksibel.
+    """
+    if plant_name not in models:
+        return {"error": f"Model untuk {plant_name} tidak ditemukan"}
 
-def predict_corn(img):
-    i = np.array(img) / 255.0
-    if len(i.shape) == 3:
-        i = i.reshape(1, 150, 150, 3)
-    else:
-        i = i.reshape(1, 150, 150, 1)
-    
-    pred = corn_model.predict(i)
+    model = models[plant_name]["model"]
+    labels = models[plant_name]["labels"]
+
+    # Ambil ukuran input dari model
+    input_shape = model.input_shape[1:3]  # (height, width)
+    channels = model.input_shape[3]       # Jumlah channel
+
+    # Resize gambar
+    img = img.resize(input_shape)
+
+    # Konversi ke array dan normalisasi
+    i = np.array(img) / 255.0  
+
+    # Sesuaikan jumlah channel
+    if len(i.shape) == 2:  
+        i = np.expand_dims(i, axis=-1)  # Jika grayscale, tambahkan channel
+    if i.shape[-1] != channels:
+        i = np.repeat(i, channels, axis=-1)
+
+    # Reshape ke format model
+    i = i.reshape((1,) + input_shape + (channels,))
+
+    # Lakukan prediksi
+    pred = model.predict(i)
     pred_class = np.argmax(pred)
-    
-    # Ensure confidence is a Python float
-    confidence = float(pred[0][pred_class] * 100)  # Convert to float
-    result = corn_labels[pred_class]
-    info = corn_info[result]
-    
-    return result, confidence, info['description'], info['solution'], img
+    confidence = float(pred[0][pred_class] * 100)
+    result = labels[pred_class]
 
+    # Ambil informasi penyakit tanaman
+    info = plant_info.get(plant_name, {}).get(result, {"description": "Unknown", "solution": "No solution available"})
+
+    return {
+        "plant_name": plant_name,
+        "prediction": result,
+        "confidence": confidence,
+        "description": info["description"],
+        "solution": info["solution"]
+    }

@@ -2,17 +2,17 @@ from flask import Blueprint, request, jsonify
 from controller.model_controller import predict_corn
 import io
 from PIL import Image
-from db import get_db_connection
+from db.database import get_db_connection
 from middleware.authenticate_middleware import auth_required
 
 predict_blueprint = Blueprint('predict', __name__)
 
-def save_prediction_to_db(image_bytes, prediction, confidence, description, solution,user_id):
+def save_prediction_to_db(image_bytes, prediction, confidence, description, solution, user_id, plant_name):
     connection = get_db_connection()
     with connection.cursor() as cursor:
         cursor.execute(
-            'INSERT INTO predictions (image, prediction, confidence, description, solution,user_id) VALUES (%s, %s, %s, %s, %s, %s)',
-            (image_bytes, prediction, confidence, description, solution,user_id)
+            'INSERT INTO predictions (image, prediction, confidence, description, solution, user_id, plant_name) VALUES (%s, %s, %s, %s, %s, %s, %s)',
+            (image_bytes, prediction, confidence, description, solution, user_id, plant_name)
         )
     connection.commit()
     connection.close()
@@ -30,8 +30,10 @@ def predict_corn_route():
     img = img.resize((150, 150), Image.NEAREST)
     prediction, confidence, description, solution, _ = predict_corn(img)
     user_id = request.user_id
-    save_prediction_to_db(image_bytes, prediction, confidence, description, solution,user_id)
+    plant_name = 'Corn'
+    save_prediction_to_db(image_bytes, prediction, confidence, description, solution,user_id,plant_name)
     return jsonify({
+        "plant_name" : plant_name,
         "user_id" : user_id,
         "prediction": prediction, 
         "confidence": confidence,
