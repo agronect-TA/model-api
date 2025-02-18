@@ -1,7 +1,7 @@
 # Dictionary untuk menyimpan informasi penyakit berbagai tanaman
 plant_info = {
     "corn": {
-        "plant_name": "Corn",
+        "plant_name": "corn",
         "diseases": {
             "Corn Healthy": {
                 "description": "Corn plants are vigorous with bright green, erect leaves, a strong root system, and full, evenly developed ears of corn.",

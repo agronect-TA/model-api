@@ -1,42 +1,38 @@
 from flask import Blueprint, request, jsonify
-from controller.model_controller import predict_corn
+from controller.model_controller import predict_image
+from db.database import save_prediction
+from middleware.authenticate_middleware import auth_required
 import io
 from PIL import Image
-from db.database import get_db_connection
-from middleware.authenticate_middleware import auth_required
 
-predict_blueprint = Blueprint('predict', __name__)
+predict_blueprint = Blueprint("predict", __name__)
 
-def save_prediction_to_db(image_bytes, prediction, confidence, description, solution, user_id, plant_name):
-    connection = get_db_connection()
-    with connection.cursor() as cursor:
-        cursor.execute(
-            'INSERT INTO predictions (image, prediction, confidence, description, solution, user_id, plant_name) VALUES (%s, %s, %s, %s, %s, %s, %s)',
-            (image_bytes, prediction, confidence, description, solution, user_id, plant_name)
-        )
-    connection.commit()
-    connection.close()
-
-
-@predict_blueprint.route('/predict/corn', methods=["GET", "POST"])
+@predict_blueprint.route("/predict/<plant_name>", methods=["POST"])
 @auth_required
-def predict_corn_route():
-    file = request.files.get('file')
-    if file is None or file.filename == "":
-        return jsonify({"error": "no file input in request"})
-    
+def predict_route(plant_name):
+    file = request.files.get("file")
+    if not file:
+        return jsonify({"error": "No file uploaded"}), 400
+
+    # Baca gambar
     image_bytes = file.read()
     img = Image.open(io.BytesIO(image_bytes))
-    img = img.resize((150, 150), Image.NEAREST)
-    prediction, confidence, description, solution, _ = predict_corn(img)
-    user_id = request.user_id
-    plant_name = 'Corn'
-    save_prediction_to_db(image_bytes, prediction, confidence, description, solution,user_id,plant_name)
-    return jsonify({
-        "plant_name" : plant_name,
-        "user_id" : user_id,
-        "prediction": prediction, 
-        "confidence": confidence,
-        "description": description,
-        "solution": solution,
-    })
+
+    # Lakukan prediksi
+    result = predict_image(img, plant_name)
+
+    if "error" in result:
+        return jsonify(result), 400
+
+    # Simpan hasil ke database
+    save_prediction(
+        user_id=request.user_id,
+        plant_name=plant_name,
+        image_bytes=image_bytes,
+        prediction=result["prediction"],
+        confidence=result["confidence"],
+        description=result["description"],
+        solution=result["solution"],
+    )
+
+    return jsonify(result)

@@ -3,7 +3,7 @@ import os
 
 models = {
     "corn": {
-        "path": "model/corn_model.h5",
+        "path": "models/corn_model.h5",
         "labels": ["Corn Healthy", "Corn Gray Leaf Spot", "Corn Common Rust", "Corn Northern Leaf Blight"]
     },
     # Model lain bisa ditambahkan di sini nantinya

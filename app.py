@@ -1,21 +1,15 @@
 from flask import Flask
 from routes.model_routes import predict_blueprint
 import os
-import sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 app = Flask(__name__)
+
+# Register blueprint
 app.register_blueprint(predict_blueprint)
 
-@app.route('/db_test')
-def db_test():
-    from db.database import get_db_connection
-    connection = get_db_connection()
-    with connection.cursor() as cursor:
-        cursor.execute('SELECT NOW()')
-        result = cursor.fetchone()
-    connection.close()
-    return f'Time from DB: {result[0]}'
+@app.route("/")
+def home():
+    return "Disease Prediction API is running!"
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)
