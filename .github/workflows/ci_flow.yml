@@ -27,18 +27,18 @@ jobs:
       # Step 4: Set environment variables
       - name: Set database environment variables
         run: |
-          echo "PROD_DB_HOST=${{ secrets.DB_HOST }}" >> $GITHUB_ENV
-          echo "PROD_DB_PORT=${{ secrets.DB_PORT }}" >> $GITHUB_ENV
-          echo "PROD_DB_USER=${{ secrets.DB_USER }}" >> $GITHUB_ENV
-          echo "PROD_DB_PASSWORD=${{ secrets._DB_PASSWORD }}" >> $GITHUB_ENV
-          echo "PROD_DB_NAME=${{ secrets.DB_NAME }}" >> $GITHUB_ENV
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> $GITHUB_ENV
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> $GITHUB_ENV
+          echo "DB_USER=${{ secrets.DB_USER }}" >> $GITHUB_ENV
+          echo "DB_PASSWORD=${{ secrets._DB_PASSWORD }}" >> $GITHUB_ENV
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> $GITHUB_ENV
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
 
       # Step 5: Test database connection
       - name: Test database connection
         run: |
           sudo apt-get install -y mysql-client
-          mysql -h $PROD_DB_HOST -P $PROD_DB_PORT -u $PROD_DB_USER -p$PROD_DB_PASSWORD -e "USE $PROD_DB_NAME; SHOW TABLES;"
+          mysql -h $DB_HOST -P $DB_PORT -u $DB_USER -p$DB_PASSWORD -e "USE $DB_NAME; SHOW TABLES;"
 
       # Step 7: Run tests
       - name: Run tests
