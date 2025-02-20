@@ -3,7 +3,9 @@ name: Continuous Deployment (CD)
 on:
   push:
     tags:
-      - "*" # Menjalankan CD saat ada perubahan di main
+      - "*" # Memicu workflow jika ada push tag seperti v1.0.0
+    branches:
+      - main # Menjalankan CD saat ada perubahan di main
 
 jobs:
   deploy:
