@@ -2,9 +2,12 @@ import jwt
 from functools import wraps
 from flask import request, jsonify
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Load secret from environment variables
-JWT_SECRET = "baguskeren77"
+JWT_SECRET = os.getenv("JWT_SECRET")
 
 def auth_required(f):
     @wraps(f)

@@ -1,5 +1,4 @@
 import numpy as np
-from PIL import Image
 from models.models_loader import models
 from information.model_info import plant_info
 

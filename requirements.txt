@@ -6,3 +6,4 @@ pymysql
 python-dotenv
 gunicorn
 pyjwt
+pytest

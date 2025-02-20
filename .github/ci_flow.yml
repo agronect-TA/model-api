@@ -1,0 +1,68 @@
+name: Continuous Integration (CI) - Python
+
+on:
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout repository
+      - uses: actions/checkout@v4
+
+      # Step 2: Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Step 4: Set environment variables
+      - name: Set database environment variables
+        run: |
+          echo "PROD_DB_HOST=${{ secrets.DB_HOST }}" >> $GITHUB_ENV
+          echo "PROD_DB_PORT=${{ secrets.DB_PORT }}" >> $GITHUB_ENV
+          echo "PROD_DB_USER=${{ secrets.DB_USER }}" >> $GITHUB_ENV
+          echo "PROD_DB_PASSWORD=${{ secrets._DB_PASSWORD }}" >> $GITHUB_ENV
+          echo "PROD_DB_NAME=${{ secrets.DB_NAME }}" >> $GITHUB_ENV
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
+
+      # Step 5: Test database connection
+      - name: Test database connection
+        run: |
+          sudo apt-get install -y mysql-client
+          mysql -h $PROD_DB_HOST -P $PROD_DB_PORT -u $PROD_DB_USER -p$PROD_DB_PASSWORD -e "USE $PROD_DB_NAME; SHOW TABLES;"
+
+      # Step 7: Run tests
+      - name: Run tests
+        run: pytest
+
+      # Step 8: Get application version
+      - name: Get application version
+        run: |
+          VERSION=$(python -c "import toml; print(toml.load('pyproject.toml')['tool']['poetry']['version'])")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      # Step 9: Log in to Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Step 10: Build Docker image
+      - name: Build Docker image
+        run: |
+          docker build -t heilrose/model-api-agronect:${{ env.VERSION }} .
+
+      # Step 11: Push Docker image to Docker Hub
+      - name: Push Docker image to Docker Hub
+        run: |
+          docker push heilrose/model-api-agronect:${{ env.VERSION }}
