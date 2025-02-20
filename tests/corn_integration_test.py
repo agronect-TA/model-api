@@ -1,0 +1,53 @@
+import pytest
+import requests
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+BASE_URL = "http://localhost:5000"
+LOGIN_URL = "http://206.189.153.35:3000/signin"  # Ganti dengan URL API utama
+PREDICT_URL = f"{BASE_URL}/predict/corn"
+TEST_IMAGE_PATH = "tests/test_image.JPG"
+
+def get_access_token():
+    """Login ke API utama untuk mendapatkan access_token."""
+    response = requests.post(LOGIN_URL, json={
+        "email": "sfqbs@gmail.com",
+        "password": "Baguskeren77"
+    })
+    assert response.status_code == 200, "Gagal login, periksa kredensial."
+    return response.json().get("access_token")
+
+@pytest.fixture(scope="module")
+def access_token():
+    return get_access_token()
+
+def test_predict_success(access_token):
+    """Mengirim gambar dan memastikan prediksi berhasil."""
+    with open(TEST_IMAGE_PATH, "rb") as img:
+        files = {"file": img}
+        headers = {"Authorization": f"Bearer {access_token}"}
+        response = requests.post(PREDICT_URL, files=files, headers=headers)
+    
+    assert response.status_code == 200, f"Gagal prediksi: {response.json()}"
+    data = response.json()
+    assert "prediction" in data, "Response tidak memiliki prediksi."
+    assert "confidence" in data, "Response tidak memiliki tingkat keyakinan."
+
+def test_predict_no_token():
+    """Memastikan akses tanpa token ditolak."""
+    with open(TEST_IMAGE_PATH, "rb") as img:
+        files = {"file": img}
+        response = requests.post(PREDICT_URL, files=files)
+    
+    assert response.status_code == 401, "Akses tanpa token seharusnya ditolak."
+
+def test_predict_invalid_token():
+    """Memastikan token tidak valid ditolak."""
+    with open(TEST_IMAGE_PATH, "rb") as img:
+        files = {"file": img}
+        headers = {"Authorization": "Bearer invalid_token"}
+        response = requests.post(PREDICT_URL, files=files, headers=headers)
+    
+    assert response.status_code == 403, "Token tidak valid seharusnya ditolak."

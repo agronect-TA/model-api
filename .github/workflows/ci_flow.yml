@@ -40,6 +40,10 @@ jobs:
           sudo apt-get install -y mysql-client
           mysql -h $DB_HOST -P $DB_PORT -u $DB_USER -p$DB_PASSWORD -e "USE $DB_NAME; SHOW TABLES;"
 
+      - name: Start Flask Server
+        run: |
+          python app.py & sleep 10
+
       # Step 7: Run tests
       - name: Run tests
         run: pytest

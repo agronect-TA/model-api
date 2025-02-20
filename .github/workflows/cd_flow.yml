@@ -1,0 +1,66 @@
+name: Continuous Deployment (CD)
+
+on:
+  push:
+    tags:
+      - "*" # Memicu workflow jika ada push tag seperti v1.0.0
+    branches:
+      - main # Menjalankan CD saat ada perubahan di main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout repository
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Pastikan bisa membaca tag sebelumnya
+
+      # Step 2: Set env dengan versi dari package.json
+      - name: Get application version
+        run: |
+          VERSION=$(node -e "console.log(require('./package.json').version)")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Final version: $VERSION"
+
+      # Step 3: Buat tag hanya jika branch adalah main
+      - name: Create and push Git Tag
+        if: github.ref == 'refs/heads/main'
+        run: |
+          git config --global user.name "alhailross"
+          git config --global user.email "sfqbgs77@gmail.com"
+
+          # Cek apakah tag sudah ada
+          if git rev-parse "v${{ env.VERSION }}" >/dev/null 2>&1; then
+            echo "Tag v${{ env.VERSION }} already exists, skipping..."
+            exit 0
+          fi
+
+          # Buat tag dan push ke repository
+          git tag -a v${{ env.VERSION }} -m "Release ${{ env.VERSION }}"
+          git push origin v${{ env.VERSION }}
+
+      # Step 4: Set up SSH access to Droplets
+      - name: Set up SSH Agent
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.DIGITALOCEAN_SSH_PRIVATE_KEY }}
+
+      # Step 5: Login to Docker Hub and Pull Docker Image on Droplets
+      - name: Login to Docker Hub and Pull Docker Image
+        run: |
+          ssh -o StrictHostKeyChecking=no root@${{ secrets.DROPLET_IP }} << 'EOF'
+          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker pull heilrose/backend-agronect:${{ env.VERSION }}
+          EOF
+
+      # Step 6: Deploy using Docker Compose
+      - name: Deploy using Docker Compose
+        run: |
+          ssh -o StrictHostKeyChecking=no root@${{ secrets.DROPLET_IP }} << 'EOF'
+          export VERSION=${{ env.VERSION }}
+          docker compose pull
+          docker compose down
+          docker compose up -d
+          EOF

@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="model-api-skripsi",
-    version="1.0.0",
+    version="1.0.1",
     description="Model API for Agronect APplication",
     author="Bagus Syafiq",
 )

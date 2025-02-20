@@ -7,6 +7,7 @@ load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
+# Gunakan environment variables untuk konfigurasi database
 
 # Konfigurasi database
 DB_CONFIG = {
