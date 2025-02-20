@@ -47,7 +47,7 @@ jobs:
       # Step 8: Get application version
       - name: Get application version
         run: |
-          VERSION=$(python -c "import toml; print(toml.load('pyproject.toml')['tool']['poetry']['version'])")
+          VERSION=$(python -c "import re; fp=open('setup.py'); print(re.search(r'version=\"([0-9]+\.[0-9]+\.[0-9]+)\"', fp.read()).group(1))")
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       # Step 9: Log in to Docker Hub
