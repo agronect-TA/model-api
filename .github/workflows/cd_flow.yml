@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "*" # Memicu workflow jika ada push tag seperti v1.0.0
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
