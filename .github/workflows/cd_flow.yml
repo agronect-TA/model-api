@@ -1,11 +1,9 @@
-name: Continuous Deployment (CD)
+name: Continuous Deployment (CD) - Python
 
 on:
   push:
     tags:
       - "*" # Memicu workflow jika ada push tag seperti v1.0.0
-    branches:
-      - main # Menjalankan CD saat ada perubahan di main
 
 jobs:
   deploy:
@@ -52,7 +50,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no root@${{ secrets.DROPLET_IP }} << 'EOF'
           echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-          docker pull heilrose/backend-agronect:${{ env.VERSION }}
+          docker pull heilrose/model-api-agronect:${{ env.VERSION }}
           EOF
 
       # Step 6: Deploy using Docker Compose
