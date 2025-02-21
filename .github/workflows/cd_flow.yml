@@ -1,4 +1,4 @@
-name: Continuous Deployment (CD) - Python
+name: Continuous Deployment (CD)
 
 on:
   push:
@@ -12,53 +12,44 @@ jobs:
     steps:
       # Step 1: Checkout repository
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Pastikan bisa membaca tag sebelumnya
 
-      # Step 2: Set env dengan versi dari package.json
-      - name: Get application version
+      # Step 2: Get the Git tag
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+      - name: Test
         run: |
-          VERSION=$(node -e "console.log(require('./package.json').version)")
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "Final version: $VERSION"
+          echo $RELEASE_VERSION
+          echo ${{ env.RELEASE_VERSION }}
 
-      # Step 3: Buat tag hanya jika branch adalah main
-      - name: Create and push Git Tag
-        if: github.ref == 'refs/heads/main'
-        run: |
-          git config --global user.name "alhailross"
-          git config --global user.email "sfqbgs77@gmail.com"
-
-          # Cek apakah tag sudah ada
-          if git rev-parse "v${{ env.VERSION }}" >/dev/null 2>&1; then
-            echo "Tag v${{ env.VERSION }} already exists, skipping..."
-            exit 0
-          fi
-
-          # Buat tag dan push ke repository
-          git tag -a v${{ env.VERSION }} -m "Release ${{ env.VERSION }}"
-          git push origin v${{ env.VERSION }}
-
-      # Step 4: Set up SSH access to Droplets
+      # Step 3: Set up SSH access to Droplets
       - name: Set up SSH Agent
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.DIGITALOCEAN_SSH_PRIVATE_KEY }}
 
-      # Step 5: Login to Docker Hub and Pull Docker Image on Droplets
+      # Step 4: Login to Docker Hub and Pull Docker Image on Droplets
       - name: Login to Docker Hub and Pull Docker Image
         run: |
           ssh -o StrictHostKeyChecking=no root@${{ secrets.DROPLET_IP }} << 'EOF'
+          # Login ke Docker Hub
           echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-          docker pull heilrose/model-api-agronect:${{ env.VERSION }}
+
+          # Pull Docker image dengan versi yang sesuai
+          docker pull heilrose/model-api-agronect:${{ env.RELEASE_VERSION }}
           EOF
 
-      # Step 6: Deploy using Docker Compose
+      # Step 5: Deploy using Docker Compose
       - name: Deploy using Docker Compose
         run: |
           ssh -o StrictHostKeyChecking=no root@${{ secrets.DROPLET_IP }} << 'EOF'
-          export VERSION=${{ env.VERSION }}
+          export VERSION=${{ env.RELEASE_VERSION }}
+
+          # Pastikan layanan menggunakan image terbaru
           docker compose pull
+
+          # Hentikan dan hapus kontainer yang lama
           docker compose down
+
+          # Jalankan layanan dengan image baru
           docker compose up -d
           EOF
