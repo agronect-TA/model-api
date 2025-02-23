@@ -9,6 +9,10 @@ models = {
     "rice": {
         "path": "models/rice_model.h5",
         "labels": ['Brown Spot', 'Healthy', 'Leaf Blast', 'Neck Blast']
+    },
+    "cassava": {
+        "path": "models/cassava_model.h5",
+        "labels": ['Cassava Bacterial Blight', 'Cassava Brown Streak Disease', 'Cassava Green Mottle', 'Cassava Mosaic Disease', 'Healthy']
     }
     # Model lain bisa ditambahkan di sini nantinya
 }

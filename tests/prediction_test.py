@@ -20,10 +20,15 @@ def mock_rice_labels():
     return ["Brown Spot", "Healthly", "Leaf Blast", "Neck Blast"]
 
 @pytest.fixture
-def mock_models(monkeypatch, mock_model, mock_labels, mock_rice_labels):
+def mock_cassava_labels():
+    return ["Cassava Bacterial Blight", "Cassava Brown Streak Disease", "Cassava Green Mottle", "Cassava Mosaic Disease", "Healthy"]
+
+@pytest.fixture
+def mock_models(monkeypatch, mock_model, mock_labels, mock_rice_labels, mock_cassava_labels):
     monkeypatch.setattr("models.models_loader.models", {
         "corn": {"model": mock_model, "labels": mock_labels},
-        "rice": {"model": mock_model, "labels": mock_rice_labels}
+        "rice": {"model": mock_model, "labels": mock_rice_labels},
+        "cassava": {"model": mock_model, "labels": mock_cassava_labels}
     })
 
 def test_predict_image_valid(mock_models):
@@ -40,6 +45,14 @@ def test_predict_image_valid_rice(mock_models):
     
     assert "prediction" in result
     assert result["prediction"] == "Leaf Blast"
+    assert result["confidence"] > 0
+
+def test_predict_image_valid_cassava(mock_models):
+    img = Image.new("RGB", (256, 256))  # Buat gambar dummy
+    result = predict_image(img, "cassava")
+    
+    assert "prediction" in result
+    assert result["prediction"] == "Healthy"
     assert result["confidence"] > 0
 
 def test_predict_image_invalid_model():
