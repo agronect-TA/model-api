@@ -26,7 +26,6 @@ def auth_required(f):
             return jsonify({"message": "Token Anda telah kedaluwarsa. Silakan coba lagi"}), 400
         except jwt.InvalidTokenError:
             return jsonify({"message": "Token tidak valid atau kedaluwarsa"}), 403
-        
         return f(*args, **kwargs)
     
     return decorated_function

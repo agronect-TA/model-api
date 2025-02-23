@@ -6,6 +6,10 @@ models = {
         "path": "models/corn_model.h5",
         "labels": ["Corn Healthy", "Corn Gray Leaf Spot", "Corn Common Rust", "Corn Northern Leaf Blight"]
     },
+    "rice": {
+        "path": "models/rice_model.h5",
+        "labels": ['Brown Spot', 'Healthy', 'Leaf Blast', 'Neck Blast']
+    }
     # Model lain bisa ditambahkan di sini nantinya
 }
 
