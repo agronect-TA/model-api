@@ -7,8 +7,6 @@ load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-# Gunakan environment variables untuk konfigurasi database
-
 # Konfigurasi database
 DB_CONFIG = {
     "user": os.getenv("DB_USER"),
@@ -28,8 +26,8 @@ def get_db_connection():
         logging.error(f"Gagal konek ke database: {e}")
         return None
 
-def save_prediction(user_id, plant_name, image_bytes, prediction, confidence, description, solution):
-    """Menyimpan hasil prediksi ke dalam database."""
+def save_prediction(user_id, plant_name, image_url, prediction, confidence, description, solution):
+    """Menyimpan hasil prediksi ke dalam database dengan URL gambar."""
     connection = get_db_connection()
     if not connection:
         logging.error("Gagal menyimpan data karena koneksi database tidak tersedia.")
@@ -38,12 +36,12 @@ def save_prediction(user_id, plant_name, image_bytes, prediction, confidence, de
     try:
         with connection.cursor() as cursor:
             query = """
-                INSERT INTO predictions (user_id, plant_name, image, prediction, confidence, description, solution)
+                INSERT INTO predictions (user_id, plant_name, image_url, prediction, confidence, description, solution)
                 VALUES (%s, %s, %s, %s, %s, %s, %s)
             """
-            cursor.execute(query, (user_id, plant_name, image_bytes, prediction, confidence, description, solution))
+            cursor.execute(query, (user_id, plant_name, image_url, prediction, confidence, description, solution))
         connection.commit()
-        logging.info("Data prediksi berhasil disimpan.")
+        logging.info("Data prediksi berhasil disimpan dengan URL gambar.")
     except Exception as e:
         logging.error(f"Error saat menyimpan data: {e}")
     finally:
