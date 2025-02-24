@@ -1,0 +1,10 @@
+Flask
+numpy
+Pillow
+tensorflow
+pymysql
+python-dotenv
+gunicorn
+pyjwt
+pytest
+boto3

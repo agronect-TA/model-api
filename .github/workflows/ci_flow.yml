@@ -1,0 +1,70 @@
+name: Continuous Integration (CI) - Python
+
+on:
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Set database environment variables
+        run: |
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> $GITHUB_ENV
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> $GITHUB_ENV
+          echo "DB_USER=${{ secrets.DB_USER }}" >> $GITHUB_ENV
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> $GITHUB_ENV
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
+
+      - name: Set DigitalOcean Spaces environment variables
+        run: |
+          echo "SPACES_SECRET_KEY=${{ secrets.SPACES_SECRET_KEY }}" >> $GITHUB_ENV
+          echo "SPACES_ACCESS_KEY=${{ secrets.SPACES_ACCESS_KEY }}" >> $GITHUB_ENV
+          echo "SPACES_ENDPOINT=${{ secrets.SPACES_ENDPOINT }}" >> $GITHUB_ENV
+          echo "SPACES_BUCKET_NAME=${{ secrets.SPACES_BUCKET_NAME }}" >> $GITHUB_ENV
+          echo "SPACES_REGION=${{ secrets.SPACES_REGION }}" >> $GITHUB_ENV
+
+      - name: Test database connection
+        run: |
+          sudo apt-get install -y mysql-client
+          mysql -h $DB_HOST -P $DB_PORT -u $DB_USER -p$DB_PASSWORD -e "USE $DB_NAME; SHOW TABLES;"
+
+      - name: Start Flask Server
+        run: |
+          python app.py & sleep 10
+
+      - name: Run tests
+        run: pytest
+
+      - name: Get application version
+        run: |
+          VERSION=$(python -c "import re; fp=open('setup.py'); print(re.search(r'version=\"([0-9]+\.[0-9]+\.[0-9]+)\"', fp.read()).group(1))")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker image
+        run: |
+          docker build -t heilrose/model-api-agronect:${{ env.VERSION }} .
+
+      - name: Push Docker image to Docker Hub
+        run: |
+          docker push heilrose/model-api-agronect:${{ env.VERSION }}
