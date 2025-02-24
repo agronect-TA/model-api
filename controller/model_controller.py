@@ -33,7 +33,25 @@ def predict_image(img, plant_name):
 
     # Lakukan prediksi
     pred = model.predict(i)
+    # Debugging: Lihat hasil prediksi
+    print(f"[DEBUG] Prediksi mentah: {pred}")
+    print(f"[DEBUG] Jumlah kelas di prediksi: {len(pred[0])}")
+    print(f"[DEBUG] Jumlah label: {len(labels)}")
+
+    # Validasi jumlah kelas dan label
+# Debugging: Cek semua probabilitas prediksi dan indeksnya
+    for idx, prob in enumerate(pred[0]):
+        print(f"[DEBUG] Kelas ke-{idx}: Probabilitas {prob:.4f}")
+
+    # Cek apakah model punya info tentang kelas
+    if hasattr(model, 'class_indices'):
+        print(f"[DEBUG] Class indices dari model: {model.class_indices}")
+    if hasattr(model, 'classes_'):
+        print(f"[DEBUG] Classes dari model: {model.classes_}")
+
+    # Cari kelas dengan probabilitas tertinggi
     pred_class = np.argmax(pred)
+
     confidence = float(pred[0][pred_class] * 100)
     result = labels[pred_class]  # Ambil label berdasarkan indeks prediksi
 

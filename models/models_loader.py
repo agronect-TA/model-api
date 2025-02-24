@@ -13,6 +13,10 @@ models = {
     "cassava": {
         "path": "models/cassava_model.h5",
         "labels": ['Cassava Bacterial Blight', 'Cassava Brown Streak Disease', 'Cassava Green Mottle', 'Cassava Mosaic Disease', 'Healthy']
+    },
+    "potato": {
+        "path": "models/potato_model.h5",
+        "labels": ['Early Blight', 'Healthy', 'Late Blight']
     }
     # Model lain bisa ditambahkan di sini nantinya
 }

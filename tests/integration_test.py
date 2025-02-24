@@ -10,9 +10,11 @@ LOGIN_URL = "http://206.189.153.35:3000/signin"  # Ganti dengan URL API utama
 PREDICT_CORN_URL = f"{BASE_URL}/predict/corn"
 PREDICT_RICE_URL = f"{BASE_URL}/predict/rice"
 PREDICT_CASSAVA_URL = f"{BASE_URL}/predict/cassava"
+PREDICT_POTATO_URL = f"{BASE_URL}/predict/potato"
 TEST_IMAGE_CORN_PATH = "tests/test_image_corn.JPG"
 TEST_IMAGE_RICE_PATH = "tests/test_image_rice.jpg"
 TEST_IMAGE_CASSAVA_PATH = "tests/test_image_cassava.jpg"
+TEST_IMAGE_POTATO_PATH = "tests/test_image_potato.JPG"
 
 def get_access_token():
     """Login ke API utama untuk mendapatkan access_token."""
@@ -58,6 +60,18 @@ def test_predict_cassava_success(access_token):
         files = {"file": img}
         headers = {"Authorization": f"Bearer {access_token}"}
         response = requests.post(PREDICT_CASSAVA_URL, files=files, headers=headers)
+    
+    assert response.status_code == 200, f"Gagal prediksi: {response.json()}"
+    data = response.json()
+    assert "prediction" in data, "Response tidak memiliki prediksi."
+    assert "confidence" in data, "Response tidak memiliki tingkat keyakinan."
+
+def test_predict_potato_success(access_token):
+    """Mengirim gambar potato dan memastikan prediksi berhasil."""
+    with open(TEST_IMAGE_POTATO_PATH, "rb") as img:
+        files = {"file": img}
+        headers = {"Authorization": f"Bearer {access_token}"}
+        response = requests.post(PREDICT_POTATO_URL, files=files, headers=headers)
     
     assert response.status_code == 200, f"Gagal prediksi: {response.json()}"
     data = response.json()

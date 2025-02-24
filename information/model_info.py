@@ -67,6 +67,22 @@ plant_info = {
         'solution': 'Use good agricultural practices such as providing adequate water and nutrients, controlling weeds, and rotating crops. Choose disease-resistant varieties and implement integrated pest management strategies to prevent diseases and pests from affecting your crop.'
     }
         }
+    },
+    "potato":{
+        "plant_name" : "Potato",
+        "diseases":{
+    'Early Blight': {
+        'description': 'Early blight is a fungal disease caused by Alternaria solani. It affects older leaves first, causing small, dark, dry, papery flecks that grow into brown-black, circular-to-oval areas with a target appearance. The spots are often bordered by veins that make them angular, and a yellowish or greenish-yellow ring may be seen bordering the growing spots. As the spots become larger, they can cause the entire leaf to become yellow and die. The disease can also affect tubers, causing dark, circular to irregular spots with raised edges that are often purple to dark metallic gray in color.',
+        'solution': 'To manage early blight, use resistant varieties, which can better tolerate the pathogens and reduce damage. Implement cultural controls such as covering the soil with mulch, watering at the base of each plant, increasing airflow by staking or trellising, removing weeds, and spacing plants adequately apart. Prune the bottom leaves to prevent early blight spores from splashing up from the soil onto leaves. Additionally, avoid planting tomatoes or peppers in the same location for at least two years.'
+    },
+    'Healthy': {
+        'description': 'Potato plant is one that is free from diseases and pests, with green leaves and stems, and produces tubers that are firm, smooth, and free from defects.',
+        'solution': 'To maintain healthy potato plants, use good agricultural practices such as providing adequate water and nutrients, controlling weeds, and rotating crops. Choose disease-resistant varieties and implement integrated pest management strategies to prevent diseases and pests from affecting your crop.'
+    },
+    'Late Blight': {
+        'description': 'Late blight is a serious disease caused by Phytophthora infestans. It affects potato, tomato, and occasionally eggplant and other members of the potato family. The disease causes large, greasy-looking, greenish-black spots on leaves and stems, which can lead to rapid defoliation and death of the plant. Tubers can also be affected, causing them to rot.',
+        'solution': 'To prevent late blight, use varieties resistant to the disease. Keep plants healthy and stressed plants are more predisposed to late blight. Avoid overhead irrigation and do not dig tubers until they are fully mature to prevent damage. Rotate crops and avoid planting potatoes or tomatoes in the same location for at least two years. Keep the field at least 225 to 450 yards away from last years field and surround the field with wheat to keep wind-blown spores from entering. Use adequate nitrogen levels and low phosphorus levels to reduce disease severity. Implement chemical control measures as recommended.'
+    },    }
     }
     
 }
